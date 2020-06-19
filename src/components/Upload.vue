@@ -1,5 +1,5 @@
 <template>
-  <div class="mulo-imgupload-shadow flex center center-line">
+  <div v-if="visible" class="mulo-imgupload-shadow flex center center-line">
     <div class="mulo-imgupload">
       <div class="icon-close">
         <img src="./imgs/close.png" alt srcset />
@@ -50,6 +50,7 @@
               :show-file-list="false"
               :on-success="uploadSuccess"
               :on-exceed="handleExceed"
+              :on-progress="progress"
               :file-list="fileList"
             >
               <el-button type="success">上传图片</el-button>
@@ -99,7 +100,7 @@
       <!--  -->
       <div class="footer flex end">
         <template v-if="!editMode">
-          <el-button type="success">确定</el-button>
+          <el-button @click="selectSuccess" type="success">确定</el-button>
         </template>
         <template v-else></template>
       </div>
@@ -116,7 +117,8 @@ import {
   DatePicker,
   Popover,
   Upload,
-  InfiniteScroll
+  InfiniteScroll,
+  Message
 } from "element-ui";
 
 export default {
@@ -155,6 +157,16 @@ export default {
     closeVisible: {
       type: Boolean,
       default: true
+    },
+    //可选择选择张数 - 最大
+    num: {
+      type: Number,
+      default: 1
+    },
+    //最少选择张数
+    minNum: {
+      type: Number,
+      default: 1
     }
 
     //
@@ -175,6 +187,7 @@ export default {
 
       //操作状态
       editMode: false,
+      visible: true,
 
       //页面数据
       fileList: [],
@@ -188,6 +201,7 @@ export default {
       ],
       //选中的图片列表 id:selected
       imgSelecteds: {},
+      //选择时间
       pickerOptions: {
         shortcuts: [
           {
@@ -255,6 +269,7 @@ export default {
         category_id: this.categoryActiveId
       });
     },
+    //选择图片
     selectImg(index) {
       //选择状态
       this.$set(this.imgs[index], "__selected", !this.imgs[index].__selected);
@@ -275,6 +290,35 @@ export default {
       }
       this.loading = true;
       this.emitLoadAction();
+    },
+    selectedImgs() {
+      let imgs = [];
+      this.imgs.forEach((li, index) => {
+        if (li.__selected) {
+          imgs.push(li);
+        }
+      });
+      return imgs;
+    },
+    close() {
+      this.visible=false;
+    },
+    progress(event, file, fileList){
+      console.log(event.percent);
+      console.log(event,file,fileList)
+    },
+    selectSuccess() {
+      let imgs = this.selectedImgs();
+      if (imgs.length < this.minNum) {
+        Message(`最少选择${this.minNum}张图片~`);
+        return;
+      }
+      this.$emit("success", {
+        //多张图片
+        imgs: imgs,
+        //单张图片方便取到
+        img: imgs[0],
+      });
     },
     /**
      * 加载的图片列表
