@@ -27,7 +27,7 @@
     "chai": "^4.1.2",
     "element-ui": "^2.13.2",
     "mulo-ui": "^2.0.1",
-    "node-sass": "^4.14.1",
+    "node-sass": "^7.0.0",
     "sass-loader": "^8.0.2",
     "vue-infinite-scroll": "^2.0.2",
     "vue-template-compiler": "^2.6.11"
